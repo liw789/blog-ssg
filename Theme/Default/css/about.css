@@ -1,0 +1,39 @@
+.about{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin-bottom: 50px;
+    margin-top: 260px;
+    gap: 40px;
+}
+
+.about h1{
+    font-weight: normal;
+}
+.logo, .about-text{
+    flex: 1;
+}
+
+
+.logo img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.credits {
+    margin-top: 25px;
+    flex-basis: 100%; /* Make the credits div take the whole row */
+    flex-shrink: 0; /* Prevent the credits div from shrinking */
+    font-size: small;
+    color: black;
+    border-top: 1px solid black;
+    padding-top: 20px;
+}
+
+.credits a{
+    color: black;
+}
+.credits a:visited{
+    color: black;
+}
