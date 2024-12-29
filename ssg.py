@@ -26,9 +26,12 @@ def gen(theme:str, src:str, output_path:str):
     theme_path = os.path.join(app_path, "Theme", theme)
 
     #setup the site for the album
-    album_name = parsed_data["album-name"]
-    setup_site(theme_path, output_path, album_name)
+    album_title = parsed_data["album-title"]
+    setup_site(theme_path, output_path, album_title)
     
+    photos = parsed_data["photos"]
+
+
     #update the index.html file
     snippet_path = os.path.join(theme_path, "templates", "index-image-container.snippet")
     container_snippet = open(snippet_path, "r").read()
@@ -39,23 +42,63 @@ def gen(theme:str, src:str, output_path:str):
 
     with open(html_file_path, 'r', encoding='utf-8') as file:
         content = file.read()
-        index = update_index_file(content, container_snippet, album_name, parsed_data["album-cover"])
+        index = update_index_file(content, container_snippet, album_title, parsed_data["album-cover"])
 
     with open(html_file_path, 'w', encoding='utf-8') as file:
         file.write(index)
 
     #update the album.html file
 
-    album_file_path = os.path.join(output_path, "photos", album_name, "album.html")
+    album_file_path = os.path.join(output_path, "photos", album_title, "album.html")
 
+    snippet_path = os.path.join(theme_path, "templates", "album-slide.snippet")
+    with open(album_file_path, 'r', encoding='utf-8') as file2:
+        content = file2.read()
+        content = content.replace("{{album-title}}", album_title)
+        soup = BeautifulSoup(content, 'html.parser')
+        images_div = soup.find("div", id="images")
+        slide_snippet =''
+        with open(snippet_path, 'r', encoding='utf-8') as slide_file:
+            slide_snippet = slide_file.read()
 
+        #for each jpg or webp file in the src directory, add a snippet to the album.html file and copy the picture to the same directory
+        files = sorted(os.listdir(src))
+        for f in files:
+            if f.endswith(".jpg") or f.endswith(".webp"):
+                #copy the file to the album directory
+                copy(os.path.join(src, f), os.path.join(output_path, "photos", album_title, f))
+
+                photo_metadata = find_photo_by_name(photos, f)
+                
+                description = ""
+                position = ""
+
+                if photo_metadata:
+                    description = photo_metadata["description"]
+                    position = photo_metadata["position"]
+
+                #add a snippet to the album.html file
+                slide_text = slide_snippet.replace("{{filename}}", f)
+                slide_text = slide_text.replace("{{description}}", description)
+                slide_text = slide_text.replace("{{position}}", position)
+
+                images_div.append(BeautifulSoup(slide_text, 'html.parser'))
+        with open(album_file_path, 'w', encoding='utf-8') as file:
+            file.write(str(soup))
     return 0
 
+def find_photo_by_name(photos, file_name):
+    for photo in photos:
+        if photo["filename"] == file_name:
+            return photo
+    return None
 
-def update_index_file(content:str, container_snippet:str, album_name:str, album_cover:str) -> str:
+
+def update_index_file(content:str, container_snippet:str, album_title:str, album_cover:str) -> str:
      #add the album cover to index.html
-    container_snippet = container_snippet.replace("{{album-cover}}", album_cover)
-    container_snippet = container_snippet.replace("{{album-name}}", album_name)
+    container_snippet = container_snippet.replace("{{album-cover}}", "photos/" + album_title + "/" + album_cover)
+    container_snippet = container_snippet.replace("{{album-title}}", album_title)
+    container_snippet = container_snippet.replace("{{album-url}}", "photos/" + album_title + "/album.html")
 
     soup = BeautifulSoup(content, 'html.parser')
 
