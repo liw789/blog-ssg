@@ -1,6 +1,6 @@
 .images{
     margin-top: 150px;
-    width: 100%;
+    width: 1280px;
     font-size: 0px;
 }
 
@@ -10,7 +10,7 @@
 
 .blog-text{
     position:absolute;
-    font-size: 26px;
+    font-size: 20px;
     color: #ffffff;
     margin: 30px;
 }
