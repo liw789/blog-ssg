@@ -1,5 +1,5 @@
 import sys
-import ssg
+from . import ssg
 import argparse
 
 # Instantiate the parser
