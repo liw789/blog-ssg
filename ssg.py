@@ -1,7 +1,7 @@
 import sys
 import os
 import json
-from shutil import copytree, copy
+from shutil import copytree, copy, copy2
 from bs4 import BeautifulSoup
 
 
@@ -125,7 +125,7 @@ def setup_site(theme_path:str, output_path:str, album_output_path:str, index_htm
     
     #copy the album.html from the theme to the album directory
     if os.path.exists(album_html_file_path):
-        copy(album_html_file_path, album_output_path)
+        copy2(album_html_file_path, album_output_path)
 
 def update_index_html_file(content:str, container_snippet:str, album_title:str, album_cover:str, album_relative_path:str) -> str:
 

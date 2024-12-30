@@ -33,6 +33,7 @@ body{
 }
 
 .header-title-container a{
+    color: black;
     text-decoration: none;
 }
 .header-title-container a:visited{
