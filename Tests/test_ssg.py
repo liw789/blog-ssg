@@ -9,7 +9,7 @@ class TestSSG(unittest.TestCase):
         src = "test_src"
         theme = "test_theme"
 
-        app_root= sys.path[0]
+        app_root = src
 
         os.makedirs(os.path.join(src, "Theme", theme, "templates"), exist_ok=True)
         with open(os.path.join(src, "config.json"), 'w') as f:

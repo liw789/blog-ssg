@@ -1,6 +1,7 @@
 {
     "album-cover" : "pic1",
     "album-title" : "text",
+    "album-description" : "description",
     "photos" : [
         {
             "filename" : "pic1",

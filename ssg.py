@@ -5,17 +5,18 @@ from shutil import copytree, copy, copy2
 from bs4 import BeautifulSoup
 
 
-def main(theme:str, src:str, output_path: str) -> int:
+def generate(theme:str, src:str, output_path:str) -> int:
+
     if not theme or not theme.strip():
         theme = "Default"
     if not src or not src.strip():
         #default to current directory
         src = os.getcwd()
-    return gen(theme, src, output_path)
+    else:
+        src = os.path.abspath(src)
 
-def gen(theme:str, src:str, output_path:str) -> int:
+    app_root = os.path.dirname(os.path.realpath(__file__))
 
-    app_root = sys.path[0]
     try:
         #set and validate src paths
         config_file_path, theme_path, index_image_container_snippet_path, album_html_src_path, album_slide_snippet_path = set_and_validate_source_paths(src, theme, app_root)
@@ -28,6 +29,7 @@ def gen(theme:str, src:str, output_path:str) -> int:
         album_title = parsed_data["album-title"]
         photos_metadata = parsed_data["photos"]
         album_cover = parsed_data["album-cover"]
+        album_description = parsed_data["album-description"]
     
     except FileNotFoundError as e:
         print(str(e))
@@ -58,7 +60,7 @@ def gen(theme:str, src:str, output_path:str) -> int:
     
     #update the album.html file
 
-    create_album(album_output_path, album_html_output_path, album_slide_snippet_path, album_title, src, photos_metadata)    
+    create_album(album_output_path, album_html_output_path, album_slide_snippet_path, album_title, src, album_description, photos_metadata)    
 
     return 0
 
@@ -99,6 +101,7 @@ def generate_output_paths(output_path:str, album_title:str)->tuple:
     #expected output paths are like the following:
     #output_path/index.html
     #output_path/photos/album_title/album.html
+    output_path = os.path.abspath(output_path)
 
     index_html_file_output_path = os.path.join(output_path, "index.html")
     album_output_path = os.path.join(output_path, "photos", album_title)
@@ -143,12 +146,13 @@ def update_index_html_file(content:str, container_snippet:str, album_title:str, 
 
     return str(soup)
 
-def create_album(album_output_path:str, album_html_output_path:str, album_slide_snippet_path:str,  album_title:str, src:str, photos_metadata:dict):
+def create_album(album_output_path:str, album_html_output_path:str, album_slide_snippet_path:str,  album_title:str, src:str,album_description:str, photos_metadata:dict):
       
     with open(album_html_output_path, 'r', encoding='utf-8') as file2:
         content = file2.read()
     
     content = content.replace("{{album-title}}", album_title)
+    content = content.replace("{{album-description}}", album_description)
     soup = BeautifulSoup(content, 'html.parser')
     images_div = soup.find("div", id="images")
 
@@ -163,20 +167,19 @@ def create_album(album_output_path:str, album_html_output_path:str, album_slide_
             copy(os.path.join(src, f), os.path.join(album_output_path, f))
 
             photo_metadata = find_photo_by_name(photos_metadata, f)
-            
-            description = ""
-            position = ""
+
+            slide_text = slide_snippet.replace("{{filename}}", f)
 
             if photo_metadata:
-                description = photo_metadata["description"]
-                position = photo_metadata["position"]
-
-            #add a snippet to the album.html file
-            slide_text = slide_snippet.replace("{{filename}}", f)
-            slide_text = slide_text.replace("{{description}}", description)
-            slide_text = slide_text.replace("{{position}}", position)
-
-            images_div.append(BeautifulSoup(slide_text, 'html.parser'))
+                slide_text = slide_text.replace("{{description}}", photo_metadata["description"])
+                slide_text = slide_text.replace("{{position}}", photo_metadata["position"])
+            
+            slide_div = BeautifulSoup(slide_text, 'html.parser')
+            
+            if not photo_metadata:
+                slide_div.find("div", id="blog-text").decompose()
+                
+            images_div.append(slide_div)
 
     with open(album_html_output_path, 'w', encoding='utf-8') as file:
         file.write(str(soup))

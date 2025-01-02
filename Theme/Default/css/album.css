@@ -1,7 +1,8 @@
 .images{
     margin-top: 150px;
-    width: 1280px;
+    width: 980px;
     font-size: 0px;
+    font-family: Optima, serif;
 }
 
 .slide{
@@ -9,10 +10,18 @@
 }
 
 .blog-text{
-    position:absolute;
-    font-size: 20px;
+    position: absolute;
+    font-size: 15px;
     color: #ffffff;
-    margin: 30px;
+    text-align: center;
+    padding: 5px 0px;
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 100%;
+}
+
+.single-image{
+    padding: 0px;
+    margin: 0px;
 }
 
 .single-image img{
@@ -20,4 +29,9 @@
     height: auto;
     object-fit: cover;
     
+}
+
+.description{
+    font-size: 18px;
+    margin: 10px 0px 50px 0px;
 }
